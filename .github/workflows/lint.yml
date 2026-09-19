@@ -51,7 +51,7 @@ jobs:
           if: runner.os == 'Windows'
           run: choco install make unzip -y
         - name: Download Go modules
-          timeout-minutes: 1
+          timeout-minutes: 5
           run: go mod download
         - name: Lint
           timeout-minutes: 13
