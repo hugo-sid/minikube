@@ -49,7 +49,7 @@ jobs:
         - name: Install dependencies (Windows)
           timeout-minutes: 1
           if: runner.os == 'Windows'
-          run: choco install make -y
+          run: choco install make unzip -y
         - name: Download Go modules
           timeout-minutes: 1
           run: go mod download

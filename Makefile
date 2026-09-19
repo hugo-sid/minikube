@@ -497,17 +497,28 @@ out/linters/golangci-lint-$(GOLINT_VERSION):
 	os=$$(go env GOOS); \
 	arch=$$(go env GOARCH); \
 	name="golangci-lint-$${version}-$${os}-$${arch}"; \
-	archive="out/linters/$${name}.tar.gz"; \
+	if [ "$$os" = "windows" ]; then \
+		ext="zip"; \
+	else \
+		ext="tar.gz"; \
+	fi; \
+	archive="out/linters/$${name}.$${ext}"; \
 	checksums="out/linters/golangci-lint-$${version}-checksums.txt"; \
-	curl -sfL -o "$${archive}" "https://github.com/golangci/golangci-lint/releases/download/$(GOLINT_VERSION)/$${name}.tar.gz"; \
-	curl -sfL -o "$${checksums}" "https://github.com/golangci/golangci-lint/releases/download/$(GOLINT_VERSION)/golangci-lint-$${version}-checksums.txt"; \
-	want=$$(awk -v file="$${name}.tar.gz" '$$2 == file { print $$1; exit }' "$${checksums}"); \
+	curl -sfL -o "$${archive}" \
+		"https://github.com/golangci/golangci-lint/releases/download/$(GOLINT_VERSION)/$${name}.$${ext}"; \
+	curl -sfL -o "$${checksums}" \
+		"https://github.com/golangci/golangci-lint/releases/download/$(GOLINT_VERSION)/golangci-lint-$${version}-checksums.txt"; \
+	want=$$(awk -v file="$${name}.$${ext}" '$$2 == file { print $$1; exit }' "$${checksums}"); \
 	test -n "$${want}"; \
 	got=$$(openssl sha256 "$${archive}" | awk '{print $$2}'); \
 	test "$${want}" = "$${got}"; \
 	tmpdir=$$(mktemp -d); \
+	if [ "$$ext" = "zip" ]; then \
+		unzip -q "$${archive}" -d "$${tmpdir}"; \
+	else \
 	tar -xzf "$${archive}" -C "$${tmpdir}"; \
-	mv "$${tmpdir}/$${name}/golangci-lint" "$@"; \
+	fi; \
+	mv "$${tmpdir}/$${name}/golangci-lint$$( [ "$$os" = "windows" ] && echo .exe )" "$@"; \
 	chmod +x "$@"; \
 	rm -rf "$${tmpdir}" "$${archive}" "$${checksums}"
 
