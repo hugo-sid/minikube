@@ -27,13 +27,17 @@ jobs:
                 os: [ubuntu-24.04, ubuntu-24.04-arm, macos-26, macos-26-intel, windows-2025]
         runs-on: ${{ matrix.os }}
         steps:
+        - name: Keep LF line endings (Windows)
+          timeout-minutes: 1
+          if: runner.os == 'Windows'
+          run: git config --global core.autocrlf false
         - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
           timeout-minutes: 1
         - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e
           timeout-minutes: 1
           with:
             go-version: ${{env.GO_VERSION}}
-            cache: true      
+            cache: true
         - name: Install dependencies (Linux)
           timeout-minutes: 2
           if: runner.os == 'Linux'
