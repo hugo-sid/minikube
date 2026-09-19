@@ -19,6 +19,7 @@ limitations under the License.
 package parallels
 
 import (
+	"errors"
 	"fmt"
 	"os/exec"
 
@@ -49,7 +50,10 @@ func init() {
 }
 
 func configure(cfg config.ClusterConfig, n config.Node) (interface{}, error) {
-	d := parallels.NewDriver(config.MachineName(cfg, n), localpath.MiniPath()).(*parallels.Driver)
+	d, ok := parallels.NewDriver(config.MachineName(cfg, n), localpath.MiniPath()).(*parallels.Driver)
+	if !ok {
+		return nil, errors.New("unexpected parallels driver type")
+	}
 	d.Boot2DockerURL = download.LocalISOResource(cfg.MinikubeISO)
 	d.Memory = cfg.Memory
 	d.CPU = cfg.CPUs
